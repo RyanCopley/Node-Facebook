@@ -22,25 +22,28 @@ app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-  app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.setHeader("X-Frame-Options", "*");
     return next();
-  });
-  
+});
+
 app.use('/', routes);
-app.get('/fb', function (req, res){
-    FB.api('/me', { access_token: req.query.accessToken}, function(response) {
+app.get('/fb', function (req, res) {
+    FB.api('/me', {
+        access_token: req.query.accessToken
+    }, function (response) {
         res.json({
-            name : response.name,
-            pictureURL : 'https://graph.facebook.com/'+response.id+'/picture?type=large'
+            name: response.name,
+            pictureURL: 'https://graph.facebook.com/' + response.id + '/picture?type=large'
         });
     });
+
 });
 
 /// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var err = new Error('Not Found');
-    err.status = 404;  
+    err.status = 404;
     next(err);
 });
 
@@ -49,7 +52,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
+    app.use(function (err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
@@ -60,7 +63,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,
@@ -70,4 +73,3 @@ app.use(function(err, req, res, next) {
 
 
 app.listen(8080);
-
