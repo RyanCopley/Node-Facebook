@@ -4,9 +4,9 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var FB = require('fb');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
 
@@ -22,13 +22,25 @@ app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+  app.use(function(req, res, next) {
+    res.setHeader("X-Frame-Options", "*");
+    return next();
+  });
+  
 app.use('/', routes);
-app.use('/users', users);
+app.get('/fb', function (req, res){
+    FB.api('/me', { access_token: req.query.accessToken}, function(response) {
+        res.json({
+            name : response.name,
+            pictureURL : 'https://graph.facebook.com/'+response.id+'/picture?type=large'
+        });
+    });
+});
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
-    err.status = 404;
+    err.status = 404;  
     next(err);
 });
 
@@ -57,5 +69,5 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(3000);
+app.listen(8080);
 

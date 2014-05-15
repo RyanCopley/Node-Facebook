@@ -7,37 +7,69 @@
     </title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
     <script>
-        //Lets do the meat and bones...
-
         $(document).ready(function () {
-            $.ajaxSetup({
-                cache: true
-            });
-            $.getScript('//connect.facebook.net/en_UK/all.js', function () {
-                FB.init({
-                    appId: '138223132935515',
-                });
-
-                console.log("READY");
+            $(".login").click(function () {
                 FB.getLoginStatus(function (response) {
-                    if (response.status === 'connected') {
-                        console.log('Logged in.');
+                    if (response.authResponse) {
+                        loggedIn(response);
                     } else {
-                        FB.login();
+                        FB.login(function (response) {
+                            loggedIn(response);
+                        });
                     }
                 });
-
             });
         });
+
+        function loggedIn(response) {
+            if (response.authResponse) {
+                $(".login").css("display", "none");
+                $(".logout").css("display", "block");
+                console.log("User is connected to the application.");
+                var accessToken = response.authResponse.accessToken;
+                $.get("/fb", {
+                    accessToken: accessToken
+                }, function (data) {
+                    console.log(data);
+                    $(".namefield").text(data.name);
+                    $(".picturefield").attr("src", data.pictureURL);
+
+                });
+            } else {
+                console.log("No auth");
+            }
+        }
+
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '138223132935515',
+                oauth: true,
+                version: 'v2.0',
+                cookie: true
+            });
+        };
+
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {
+                return;
+            }
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
     </script>
 </head>
 
 <body>
-    <h1><%=title%></h1>
-    <p>Welcome to
-        <%=title%>
-    </p>
+    <a href="#" class="login">Login</a>
+    <h1 class="namefield"></h1>
+    <img class="picturefield"></img>
+    <br />
+    <a href="http://ryancopley.com:8080/" class="logout" style="display:none;">Logout</p>
 </body>
 
 </html>
